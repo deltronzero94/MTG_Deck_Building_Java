@@ -4,20 +4,23 @@ Date: May 22, 2017
 Purpose: The purpose of this program is to parse all the information from the .JSON for the card game,
          Magic the Gathering, and then import the information to the MYSQL database. 
          
-
+         //EXAMPLE OF RUNNING THIS WITH MYSQL CONNCETOR IN DIFF FOLDER
           javac -cp gson.jar:/home/reticent/netbeans-8.2/ide/modules/ext/mysql-connector-java-5.1.23-bin.jar: -d ./ main.java
           java -cp gson.jar:/home/reticent/netbeans-8.2/ide/modules/ext/mysql-connector-java-5.1.23-bin.jar: testing/main
+
+          //TO RUN FROM THIS FOLDER (Folder JSON_Importer/src)
+          1) javac -cp JAR/gson.jar:JAR/mysql-connector-java-5.1.23-bin.jar: -d ./ JSON_Import.java
+          2) java JSON_Import/JSON_Import
 */
 
 package JSON_Import;
 
-import java.io.FileReader;
 import com.google.gson.Gson;
-import java.io.BufferedReader;
+import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
-import java.util.*;
-import com.google.gson.GsonBuilder;
-
+import java.io.FileReader;
+import java.lang.reflect.Type;
+import java.util.Map;
 
 
 public class JSON_Import
@@ -30,18 +33,16 @@ public class JSON_Import
         try
         {
 
-            Gson gson = new GsonBuilder().create();
+            Gson gson = new Gson();
             String filename = "/home/reticent/Downloads/AllSets-x.json";
-
-            // BufferedReader br = new BufferedReader(
-            //     new FileReader("/home/reticent/Downloads/AllSets-x.json") );
             
             JsonReader reader = new JsonReader(new FileReader(filename));
-            MTG_Set o = gson.fromJson(reader, MTG_Set.class);
+            Type t = new TypeToken<Map<String, MTG_Set>>(){}.getType();
+            Map<String, MTG_Set> map = gson.fromJson(reader, t);
 
-           
-            //System.out.println(reader.nextString());
-            System.out.println(o);
+            System.out.println(map.get("LEA"));
+            Card [] c = map.get("LEA").getCards();
+            System.out.println(c[0].getName());
             
 
         }
