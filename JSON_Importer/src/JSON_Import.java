@@ -21,35 +21,50 @@ import com.google.gson.stream.JsonReader;
 import java.io.FileReader;
 import java.lang.reflect.Type;
 import java.util.Map;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 
 public class JSON_Import
 {
     public static void main (String args [])
     {
-        System.out.println("Hello World");
-
-        //Reading from JSON
+       //Declared Variables
+        Gson gson = new Gson();
+        Connection connect = null;
+        Statement statement = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        String filename =  "/home/reticent/Downloads/AllSets-x.json";   //Filepath to MTGJson file
+        
         try
         {
-
-            Gson gson = new Gson();
-            String filename = "/home/reticent/Downloads/AllSets-x.json";
-            
+            connect = DriverManager.getConnection("jdbc:mysql://localhost/mtg_dbm?" + "user=root&password=q1w2e3r4");
             JsonReader reader = new JsonReader(new FileReader(filename));
             Type t = new TypeToken<Map<String, MTG_Set>>(){}.getType();
             Map<String, MTG_Set> map = gson.fromJson(reader, t);
-
-            System.out.println(map.get("LEA"));
-            Card [] c = map.get("LEA").getCards();
-            System.out.println(c[0].getName());
             
-
+            //Iterating through map
+            for (Map.Entry<String, MTG_Set> entry : map.entrySet())
+            {
+                int i = entry.getValue().getCards().length; //Length of cards in Set
+                
+                System.out.println(entry.getKey() + "/" + entry.getValue().getName());
+                
+                for (int x = 0; x < i; x++)
+                {
+                    if (entry.getValue().getCards()[x].getRulings() != null)
+                        System.out.println(entry.getValue().getCards()[x].getName());
+                }
+            }      
         }
-        catch (Exception e)
+        catch(Exception e)
         {
-            System.out.println(e);
+            e.printStackTrace();
         }
-
     }
 }
